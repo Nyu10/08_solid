@@ -1,9 +1,37 @@
 from display import *
 from matrix import *
 from gmath import *
+import random
 
 def scanline_convert(polygons, i, screen, zbuffer ):
-    pass
+    color = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
+    points = [[polygons[i][1], 0], [polygons[i+1][1], 1], [polygons[i+2][1], 2]]
+    points.sort()
+    bot = polygons[i + points[0][1]]
+    mid = polygons[i + points[1][1]]
+    top = polygons[i + points[2][1]]
+    xb,yb,zb,=bot[0],bot[1],float(bot[2])
+    xm,ym,zm,=mid[0],mid[1],float(mid[2])
+    xt,yt,zt,=top[0],top[1],float(top[2])
+    x0,x1,z0,z1,y=xb,xb,zb,zb,yb
+    dx0=(xt-xb)/(yt-yb)
+    dx1=(xm-xb)/(ym-yb+1)
+    dz0 = float((zt - zb) / (yt - yb + 1))
+    dz1 = float((zm - zb) / (ym - yb + 1))
+    swap=False
+    while y<=yt:
+        if int(y) >= int(ym) and not swap:
+            dx1=(xt-xm)/(yt - ym + 1)
+            x1=xm
+            dz1=float((zt - zm) / (yt - ym + 1))
+            z1=zm
+            swap=True
+        draw_line(int(x0), int(y), z0, int(x1), int(y), z1, screen, zbuffer, color)
+        x0 += dx0
+        x1 += dx1
+        y += 1
+        z0 += dz0
+        z1 += dz1
 
 def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x0, y0, z0)
